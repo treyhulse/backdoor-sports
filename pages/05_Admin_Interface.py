@@ -28,7 +28,7 @@ if user:
     date = st.date_input("Date", value=datetime.date.today())
 
     if st.button("Post Bet"):
-        # Insert the new bet into MongoDB
+        # Prepare the bet data
         bet = {
             "team_1": team_1,
             "team_2": team_2,
@@ -39,7 +39,10 @@ if user:
             "status": "posted",
             "created_by": user['username']
         }
-        db['bets'].insert_one(bet)
+        
+        # Insert the new bet into MongoDB
+        result = db['bets'].insert_one(bet)
+        st.write(f"Bet inserted with ID: {result.inserted_id}")  # Debugging output
         st.success("Bet posted successfully!")
 else:
     st.error("Invalid username or password.")
