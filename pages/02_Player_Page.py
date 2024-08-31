@@ -41,9 +41,15 @@ if search_term:
 
             if player_stats:
                 st.write(f"### Stats for {selected_player}")
-                st.write(f"Passing Yards: {player_stats[0].get('passingYards', 'N/A')}")
-                st.write(f"Rushing Yards: {player_stats[0].get('rushingYards', 'N/A')}")
-                st.write(f"Receiving Yards: {player_stats[0].get('receivingYards', 'N/A')}")
+                grouped_stats = {}
+                for stat_entry in player_stats:
+                    stat_type = stat_entry.get('statType')
+                    stat_value = stat_entry.get('stat')
+                    grouped_stats[stat_type] = stat_value
+
+                st.write(f"Passing Yards: {grouped_stats.get('YDS', 'N/A')}")  # Update key based on the actual stat type
+                st.write(f"Rushing Yards: {grouped_stats.get('YDS', 'N/A')}")  # Same key as passing; modify as needed
+                st.write(f"Receiving Yards: {grouped_stats.get('YDS', 'N/A')}")  # Same key as above; modify as needed
             else:
                 st.write("No stats found for this player.")
 
@@ -68,24 +74,23 @@ else:
     st.error(f"Failed to fetch player stats: {response.status_code}")
     st.write("Response content:", response.text)
 
-def display_top_players_by_position(position, stat_key, title):
+def display_top_players_by_position(stat_type, title):
     if 'all_players_stats' in locals():
-        # Filter the players by position and sort by the given stat_key
+        # Filter the players by stat type and sort by the value of the stat
         top_players = sorted(
-            [player for player in all_players_stats if player.get('position', '').upper() == position],
-            key=lambda x: x.get(stat_key, 0),
+            [player for player in all_players_stats if player.get('statType') == stat_type],
+            key=lambda x: float(x.get('stat', 0)),
             reverse=True
         )[:10]
 
         if top_players:
             st.write(f"### Top 10 {title}")
             for player in top_players:
-                st.write(f"{player['first_name']} {player['last_name']} - {player.get(stat_key, 'N/A')} {title}")
+                st.write(f"{player['player']} ({player['team']}) - {player.get('stat', 'N/A')} {title}")
         else:
             st.write(f"No data available to display for {title}")
     else:
         st.write(f"No data available to display for {title}")
 
-display_top_players_by_position("QB", "passingYards", "Passing Yards")
-display_top_players_by_position("RB", "rushingYards", "Rushing Yards")
-display_top_players_by_position("WR", "receivingYards", "Receiving Yards")
+# Display top players by stat category
+display_top_players_by_position("YDS", "Rushing Yards")  # Update the key as needed for each category
