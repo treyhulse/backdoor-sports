@@ -1,5 +1,3 @@
-# 04_Bets_of_the_Day.py
-
 import streamlit as st
 from utils.mongo_connection import get_mongo_connection
 
@@ -12,7 +10,8 @@ st.title("🏈 Bets of the Day")
 # Fetch the bets from MongoDB
 bets = bets_collection.find({"status": "posted"})
 
-if bets.count() > 0:
+# Check if any bets are available
+if bets_collection.count_documents({"status": "posted"}) > 0:
     for bet in bets:
         st.markdown(
             f"""
