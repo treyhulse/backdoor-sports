@@ -31,7 +31,7 @@ if user:
         # Insert the new bet into MongoDB
         bet = {
             "team_1": team_1,
-            "team_2": team_2",
+            "team_2": team_2,
             "bet_type": bet_type,
             "odds": odds,
             "amount": amount,
