@@ -7,22 +7,20 @@ import datetime
 
 # Get the MongoDB connection
 db = get_mongo_connection()
-accounts_collection = db['accounts']
-bets_collection = db['bets']
-permissions_collection = db['permissions']
-roles_collection = db['roles']
 
 st.title("🏈 Admin - Make a Bet")
 
+# Get user input for authentication
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
 
-user = authenticate_user(username, password)
+# Authenticate the user
+user = authenticate_user(username, password, db)
 if user:
     st.write(f"Welcome {user['username']}!")
     
     # Check if the user has permission to post bets
-    if check_permission(user, "post_bets"):
+    if check_permission(user, "post_bets", db):
         # Bet details
         team_1 = st.text_input("Team 1", value="")
         team_2 = st.text_input("Team 2", value="")
@@ -43,7 +41,7 @@ if user:
                 "status": "posted",
                 "created_by": user['username']
             }
-            bets_collection.insert_one(bet)
+            db['bets'].insert_one(bet)
             st.success("Bet posted successfully!")
     else:
         st.error("You do not have permission to post bets.")
