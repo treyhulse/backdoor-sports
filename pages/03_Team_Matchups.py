@@ -19,6 +19,11 @@ st.title("🏈 College Football Scoreboard")
 current_week = get_current_week()
 week = st.selectbox("Select Week", options=[f"Week {i}" for i in range(1, 16)], index=current_week-1)
 
+# Filters
+conference = st.selectbox("Select Conference", options=["All", "SEC", "Big Ten", "Pac-12", "ACC", "Big 12"])
+team_ranking = st.selectbox("Select Team Ranking", options=["All", "Top 25", "Top 10", "Unranked"])
+game_status = st.selectbox("Select Game Status", options=["All", "Old", "Live", "Future"])
+
 st.write(f"Showing matchups for {week}")
 
 # Progress bar for loading data
@@ -33,7 +38,7 @@ url = f"https://api.collegefootballdata.com/games"
 params = {
     'year': 2024,
     'week': int(week.split()[1]),
-    'ranked': True
+    'ranked': True if team_ranking != "Unranked" else False
 }
 headers = {
     'Authorization': f'Bearer {api_key}'
@@ -41,16 +46,28 @@ headers = {
 response = requests.get(url, headers=headers, params=params)
 matchups = response.json()
 
-if matchups:
+# Apply additional filters (conference, game status)
+filtered_matchups = []
+for game in matchups:
+    if (conference == "All" or conference in game['home_conference'] or conference in game['away_conference']) and \
+       (game_status == "All" or
+        (game_status == "Old" and datetime.datetime.strptime(game['start_date'], "%Y-%m-%dT%H:%M:%S%z").date() < datetime.date.today()) or
+        (game_status == "Live" and game['status'] == "in_progress") or
+        (game_status == "Future" and datetime.datetime.strptime(game['start_date'], "%Y-%m-%dT%H:%M:%S%z").date() > datetime.date.today())):
+        filtered_matchups.append(game)
+
+# Display matchups
+if filtered_matchups:
     st.write(f"### Top 25 Matchups - {week}")
-    for game in matchups:
+    for game in filtered_matchups:
         st.markdown(
             f"""
             <div style="padding: 10px; border-radius: 10px; box-shadow: 2px 2px 12px rgba(0,0,0,0.1); margin-bottom: 15px; background-color: #ffffff;">
                 <div style="display: flex; justify-content: space-between;">
                     <div style="width: 15%;">
-                        <p style="font-size: 18px; font-weight: bold;">{game['start_date']}</p>
-                        <p style="font-size: 16px;">{game['home_team']} vs {game['away_team']}</p>
+                        <img src="https://a.espncdn.com/i/teamlogos/ncaa/500/{game['home_id']}.png" style="height: 50px;"/>
+                        <p style="font-size: 18px; font-weight: bold;">{game['home_team']} vs {game['away_team']}</p>
+                        <img src="https://a.espncdn.com/i/teamlogos/ncaa/500/{game['away_id']}.png" style="height: 50px;"/>
                     </div>
                     <div style="width: 15%;">
                         <p style="font-size: 18px; font-weight: bold;">{game['home_points']} - {game['away_points']}</p>
@@ -72,4 +89,4 @@ if matchups:
             """, unsafe_allow_html=True
         )
 else:
-    st.write("No matchups found for the specified week.")
+    st.write("No matchups found for the specified filters.")
