@@ -54,18 +54,32 @@ st.write("## Top 10 Players by Position")
 url = f"https://api.collegefootballdata.com/player/seasonStats?year=2024"
 headers = {'Authorization': f'Bearer {api_key}'}
 response = requests.get(url, headers=headers)
-all_players_stats = response.json()
+
+# Check if the response is successful and contains valid JSON
+if response.status_code == 200:
+    try:
+        all_players_stats = response.json()
+        st.write("Fetched player stats successfully.")
+    except ValueError as e:
+        st.error(f"Error decoding JSON: {e}")
+        st.write("Response content:", response.text)  # Debugging: Show the raw response content
+else:
+    st.error(f"Failed to fetch player stats: {response.status_code}")
+    st.write("Response content:", response.text)  # Debugging: Show the raw response content
 
 def display_top_players_by_position(position, stat_key, title):
-    top_players = sorted(
-        [player for player in all_players_stats if player['position'] == position],
-        key=lambda x: x.get(stat_key, 0),
-        reverse=True
-    )[:10]
+    if 'all_players_stats' in locals():
+        top_players = sorted(
+            [player for player in all_players_stats if player['position'] == position],
+            key=lambda x: x.get(stat_key, 0),
+            reverse=True
+        )[:10]
 
-    st.write(f"### Top 10 {title}")
-    for player in top_players:
-        st.write(f"{player['first_name']} {player['last_name']} - {player[stat_key]} {title}")
+        st.write(f"### Top 10 {title}")
+        for player in top_players:
+            st.write(f"{player['first_name']} {player['last_name']} - {player[stat_key]} {title}")
+    else:
+        st.write(f"No data available to display for {title}")
 
 display_top_players_by_position("QB", "passing_yards", "Passing Yards")
 display_top_players_by_position("RB", "rushing_yards", "Rushing Yards")
