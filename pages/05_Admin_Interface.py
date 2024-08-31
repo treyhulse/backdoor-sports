@@ -1,5 +1,3 @@
-# 05_Admin_Interface.py
-
 import streamlit as st
 from utils.mongo_connection import get_mongo_connection
 from utils.auth import authenticate_user, check_permission

@@ -13,7 +13,7 @@ def authenticate_user(username, password, db):
     - user: The user document if authentication is successful, None otherwise.
     """
     user = db['accounts'].find_one({"username": username})
-    if user and user['password'] == password:  # Ideally, use a hashed password comparison
+    if user and user['password'] == password:  # Ideally, use hashed password comparison
         return user
     return None
 
@@ -28,11 +28,19 @@ def get_user_permissions(user, db):
     Returns:
     - permissions: A list of permissions associated with the user's role.
     """
+    # Fetch the role document
     role = db['roles'].find_one({"role": user['role']})
+    
     if role:
+        # Fetch the permissions document
         permissions = db['permissions'].find_one({"role_id": role['_id']})
-        return permissions['permissions'] if permissions else []
-    return []
+        
+        if permissions:
+            return permissions['permissions']
+        else:
+            return []
+    else:
+        return []
 
 def check_permission(user, required_permission, db):
     """
