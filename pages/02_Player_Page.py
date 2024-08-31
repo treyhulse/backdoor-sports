@@ -33,8 +33,8 @@ if search_term:
             # Get the selected player's ID
             player_data = next(player for player in players if f"{player['first_name']} {player['last_name']}" == selected_player)
 
-            # Fetch player stats
-            url = f"https://api.collegefootballdata.com/player/stats?year=2024&id={player_data['id']}"
+            # Fetch player stats using the correct endpoint
+            url = f"https://api.collegefootballdata.com/stats/player/season?year=2024&id={player_data['id']}"
             headers = {'Authorization': f'Bearer {api_key}'}
             response = requests.get(url, headers=headers)
             player_stats = response.json()
@@ -50,8 +50,8 @@ if search_term:
 # Section to display top 10 QBs, RBs, and WRs
 st.write("## Top 10 Players by Position")
 
-# Fetch all player stats and filter by position
-url = f"https://api.collegefootballdata.com/player/seasonStats?year=2024"
+# Fetch all player stats by position using the correct endpoint
+url = "https://api.collegefootballdata.com/stats/player/season?year=2024"
 headers = {'Authorization': f'Bearer {api_key}'}
 response = requests.get(url, headers=headers)
 
