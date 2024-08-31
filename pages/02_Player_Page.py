@@ -1,8 +1,9 @@
 import streamlit as st
 import requests
+import time
 
 # Load API key from secrets
-api_key = st.secrets["api"]["cfb_api_key"]
+api_key = st.secrets["cfb_api_key"]
 
 st.title("🏈 Player Stats")
 
@@ -10,6 +11,13 @@ player_name = st.text_input("Enter Player Name", value="John Doe")
 team_name = st.text_input("Enter Team Name", value="Alabama")
 
 if st.button("Get Player Stats"):
+    progress_bar = st.progress(0)
+
+    # Simulate loading progress
+    for i in range(1, 101):
+        time.sleep(0.01)
+        progress_bar.progress(i)
+
     # API call to get player stats
     url = f"https://api.collegefootballdata.com/player/stats"
     params = {
