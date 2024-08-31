@@ -6,10 +6,6 @@ st.set_page_config(
     layout="wide"
 )
 
-st.sidebar.title("Navigation")
-st.sidebar.markdown("## Select a page:")
-page = st.sidebar.selectbox("", ["Homepage", "Player Page", "Teams/Matchups"])
-
 if page == "Homepage":
     st.write("### Welcome to the College Football Fantasy App!")
     st.write("Explore the latest stats, players, teams, and matchups.")
